@@ -4,6 +4,7 @@ import { Neo4jService } from "src/neo4j/neo4j.service";
 import { SignInDto } from "./dto/auth.signin.dto";
 import { SignUpDto } from "./dto/auth.signup.dto";
 import { UserService } from "src/user/user.service";
+import { EncryptionService } from "src/encryption/encryption.service";
 
 @Injectable()
 export class AuthService {
@@ -14,14 +15,7 @@ export class AuthService {
 
   async signup(user: SignUpDto) {
     const { email, password, name } = user;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await this.userService.create({
-      email,
-      password: hashedPassword,
-      name,
-    });
-
-    return newUser;
+    return await this.userService.create({ email, password, name });
   }
 
   signin(user: SignInDto) {
