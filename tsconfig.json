@@ -16,9 +16,6 @@
     "noImplicitAny": true,
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "@middlewares/*":["src/middlewares/*"]
-    }
+    "noFallthroughCasesInSwitch": true
   }
 }
