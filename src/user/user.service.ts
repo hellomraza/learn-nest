@@ -13,7 +13,7 @@ export class UserService {
     private readonly encryptionService: EncryptionService,
   ) {}
 
-  async findOne(email: string): Promise<User | undefined> {
+  async findByEmail(email: string): Promise<User | undefined> {
     const cypher = `
       MATCH (u:User {email: $email})
       RETURN u
