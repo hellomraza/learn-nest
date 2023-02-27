@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import neo4j, { Driver } from "neo4j-driver";
+import neo4j, { Driver, Result } from "neo4j-driver";
 import { NEO4J_CONFIG, NEO4J_DRIVER } from "./neo4j.utils/neo4j.constant";
 import { Neo4jConfig } from "./neo4j.utils/neo4j.interface";
 
@@ -10,11 +10,11 @@ export class Neo4jService {
     @Inject(NEO4J_DRIVER) private readonly driver: Driver,
   ) {}
 
-  private getDriver() {
+  private getDriver(): Driver {
     return this.driver;
   }
 
-  private getConfig() {
+  private getConfig(): Neo4jConfig {
     return this.config;
   }
 
@@ -32,11 +32,11 @@ export class Neo4jService {
     });
   }
 
-  read(cypher: string, params?: any, database?: string) {
+  read(cypher: string, params?: any, database?: string): Result {
     return this.getReadSession(database).run(cypher, params);
   }
 
-  write(cypher: string, params?: any, database?: string) {
+  write(cypher: string, params?: any, database?: string): Result {
     return this.getWriteSession(database).run(cypher, params);
   }
 }

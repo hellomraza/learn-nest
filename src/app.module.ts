@@ -4,6 +4,8 @@ import { AuthModule } from "./auth/auth.module";
 import configuration from "./config/configuration";
 import { Neo4jModule } from "./neo4j/neo4j.module";
 import { Neo4jConfig } from "./neo4j/neo4j.utils/neo4j.interface";
+import { UserModule } from "./user/user.module";
+import { EncryptionModule } from './encryption/encryption.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
@@ -18,7 +20,10 @@ import { Neo4jConfig } from "./neo4j/neo4j.utils/neo4j.interface";
         password: configService.get("neo4j.password").toString(),
       }),
     }),
+
     AuthModule,
+    UserModule,
+    EncryptionModule,
   ],
 })
 export class AppModule implements NestModule {
@@ -26,12 +31,3 @@ export class AppModule implements NestModule {
     consumer.apply().forRoutes();
   }
 }
-
-// .forRootAsync({
-//   scheme: "neo4j+s",
-//   host: "ffb82fb1.databases.neo4j.io",
-//   port: 7687,
-//   username: "neo4j",
-//   password: "msUzQq_tTUqh9rQs8SXcjmvXH4aYBmzzWVwpQisyoGI",
-//   database: "neo4j",
-// })
