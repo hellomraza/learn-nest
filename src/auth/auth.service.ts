@@ -1,32 +1,31 @@
 import { Injectable } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt/dist";
-import { UserService } from "src/user/user.service";
+import * as bcrypt from "bcrypt";
+import { Neo4jService } from "src/neo4j/neo4j.service";
+import { SignInDto } from "./dto/auth.signin.dto";
+import { SignUpDto } from "./dto/auth.signup.dto";
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly neo4jService: Neo4jService) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.userService.findOne(username);
-    if (user && user.password === pass) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+  async signup(user: SignUpDto) {
+    const { email, password, name } = user;
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const cypher = `
+      CREATE (u:User {email: $email, password: $password, name: $name})
+      RETURN u
+    `;
+
+    const params = { email, password: hash, name };
+
+    const newUser = this.neo4jService.write(cypher, params);
+
+    return { email, name };
   }
 
-  signup() {
-    return "signup";
-  }
-
-  signin() {
-    return "signin";
-  }
-
-  validateToken(token: string) {
-    return this.jwtService.verify(token);
+  signin(user: SignInDto) {
+    console.log(user);
   }
 }
