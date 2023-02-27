@@ -20,6 +20,7 @@ export class UserService {
     `;
     const params = { email };
     const result = await this.neo4jService.read(cypher, params);
+    console.log(result);
     const user = result.records[0]?.get(0)?.properties;
 
     return user;
