@@ -11,6 +11,7 @@ import { SignInDto } from "./dto/auth.signin.dto";
 import { SignUpDto } from "./dto/auth.signup.dto";
 import { LocalAuthGuard } from "./auth.guard";
 import { Request as RequestDto } from "express";
+import { JwtGuard } from "./jwt.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -28,8 +29,10 @@ export class AuthController {
     // this.authService.signin(req.user);
   }
 
-  @Get("users")
-  getUser() {
-    return this.authService.getUser();
+  @UseGuards(JwtGuard)
+  @Get("user")
+  getUser(@Request() req: RequestDto) {
+    return req.user;
+    // return this.authService.getUser();
   }
 }
