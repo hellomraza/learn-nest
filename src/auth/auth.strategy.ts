@@ -19,9 +19,7 @@ export class AuthStrategy extends PassportStrategy(Strategy) {
       password,
     );
 
-    if (!user) {
-      throw new UnauthorizedException();
-    }
+    if (!user) throw new UnauthorizedException();
 
     return user;
   }

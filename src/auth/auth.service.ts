@@ -29,7 +29,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user: User | undefined = await this.userService.findByEmail(email);
-    const isPasswordValid =
+    const isPasswordValid: boolean | undefined =
       user &&
       (await this.encryptionService.comparePassword(password, user.password));
 
