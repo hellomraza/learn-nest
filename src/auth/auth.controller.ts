@@ -5,28 +5,40 @@ import {
   Post,
   Request,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/auth.signin.dto";
 import { SignUpDto } from "./dto/auth.signup.dto";
-import { LocalAuthGuard } from "./auth.guard";
+import { LocalAuthGuard } from "./Guards/auth.guard";
 import { Request as RequestDto } from "express";
-import { JwtGuard } from "./jwt.guard";
+import { JwtGuard } from "./Guards/jwt.guard";
+import { JwtService } from "@nestjs/jwt";
+import { User } from "src/user/interface/user.interface";
+import { UserExistsGuard } from "./Guards/user-exist.guard";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+  ) {}
 
+  @UseGuards(UserExistsGuard)
+  @UseGuards(LocalAuthGuard)
+  @UsePipes(ValidationPipe)
   @Post("signup")
-  signup(@Body() user: SignUpDto) {
-    this.authService.signup(user);
+  signup(
+    @Body() user: SignUpDto,
+  ): Promise<{ user: User; access_token: string }> {
+    return this.authService.signup(user);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post("signin")
   signin(@Request() req: RequestDto) {
-    return req.user;
-    // this.authService.signin(req.user);
+    // return this.authService.createToken(req.user);
   }
 
   @UseGuards(JwtGuard)
