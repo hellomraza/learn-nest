@@ -5,6 +5,7 @@ import { SignUpDto } from "./dto/auth.signup.dto";
 import { UserService } from "src/user/user.service";
 import { EncryptionService } from "src/encryption/encryption.service";
 import { User } from "src/user/interface/user.interface";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     private readonly neo4jService: Neo4jService,
     private readonly userService: UserService,
     private readonly encryptionService: EncryptionService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async signup(user: SignUpDto) {
@@ -40,5 +42,12 @@ export class AuthService {
     }
 
     return null;
+  }
+
+  async createToken(user: User) {
+    const payload = { email: user.email, sub: user.id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
