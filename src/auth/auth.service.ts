@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { EncryptionService } from "src/encryption/encryption.service";
-import { User } from "src/user/interface/user.interface";
 import { UserService } from "src/user/user.service";
+import { User } from "src/utils/interface/user.interface";
 import { SignUpDto } from "./dto/auth.signup.dto";
 
 type ReqUser = {
@@ -58,18 +58,13 @@ export class AuthService {
    * @throws UnauthorizedException
    */
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<User | null> {
     const user: User | undefined = await this.userService.findByEmail(email);
     const isPasswordValid: boolean | undefined =
       user &&
       (await this.encryptionService.comparePassword(password, user.password));
 
-    if (user && isPasswordValid) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result;
-    }
-
+    if (user && isPasswordValid) return user;
     return null;
   }
 
