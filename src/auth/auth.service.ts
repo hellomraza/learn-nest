@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { EncryptionService } from "src/encryption/encryption.service";
 import { Neo4jService } from "src/neo4j/neo4j.service";
+import { User } from "src/user/interface/user.interface";
+import { UserService } from "src/user/user.service";
 import { SignInDto } from "./dto/auth.signin.dto";
 import { SignUpDto } from "./dto/auth.signup.dto";
-import { UserService } from "src/user/user.service";
-import { EncryptionService } from "src/encryption/encryption.service";
-import { User } from "src/user/interface/user.interface";
-import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
@@ -25,10 +25,6 @@ export class AuthService {
 
   signin(user: SignInDto) {
     console.log(user);
-  }
-
-  getUser() {
-    return this.neo4jService.read("MATCH (u:User) RETURN u");
   }
 
   async validateUser(email: string, password: string): Promise<any> {

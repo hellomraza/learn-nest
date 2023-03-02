@@ -1,14 +1,14 @@
-import { Injectable } from "@nestjs/common";
-import { User } from "./interface/user.interface";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { SignUpDto } from "src/auth/dto/auth.signup.dto";
-import { Neo4jService } from "src/neo4j/neo4j.service";
 import { EncryptionService } from "src/encryption/encryption.service";
+import { Neo4jService } from "src/neo4j/neo4j.service";
+import { User } from "./interface/user.interface";
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly neo4jService: Neo4jService,
-    private readonly encryptionService: EncryptionService,
+    private readonly encryption: EncryptionService,
   ) {}
 
   async findByEmail(email: string): Promise<User | undefined> {
@@ -23,16 +23,23 @@ export class UserService {
 
   async create(user: SignUpDto): Promise<User> {
     const { email, password, name } = user;
-    const hashedPassword = await this.encryptionService.hashPassword(password);
+    const hashedPassword = await this.encryption.hashPassword(password);
 
     const cypher = `
-      CREATE (u:User {email: $email, password: $password, name: $name, id: randomUUID()})
+      CREATE (u:User {
+        email: $email,
+        password: $password,
+        name: $name,
+        id: randomUUID()
+      }) 
       RETURN u
-    `;
+  `;
+    if (await this.findByEmail(email)) {
+      throw new ConflictException("User already exists");
+    }
     const params = { email, password: hashedPassword, name };
     const result = await this.neo4jService.write(cypher, params);
     const newUser = result.records[0].get(0).properties;
-
     return newUser;
   }
 }

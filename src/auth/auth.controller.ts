@@ -4,9 +4,7 @@ import {
   Get,
   Post,
   Request,
-  UseGuards,
-  UsePipes,
-  ValidationPipe
+  UseGuards
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request as RequestDto } from "express";
@@ -15,7 +13,6 @@ import { AuthService } from "./auth.service";
 import { SignUpDto } from "./dto/auth.signup.dto";
 import { LocalAuthGuard } from "./Guards/auth.guard";
 import { JwtGuard } from "./Guards/jwt.guard";
-import { UserExistsGuard } from "./Guards/user-exist.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -24,10 +21,9 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) {}
 
-  @UseGuards(UserExistsGuard)
-  @UsePipes(ValidationPipe)
   @Post("signup")
   signup(
+    @Request() req: RequestDto,
     @Body() user: SignUpDto,
   ): Promise<{ user: User; access_token: string }> {
     return this.authService.signup(user);
