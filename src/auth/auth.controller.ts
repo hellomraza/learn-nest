@@ -6,16 +6,15 @@ import {
   Request,
   UseGuards,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { Request as RequestDto } from "express";
+import { User } from "src/user/interface/user.interface";
 import { AuthService } from "./auth.service";
-import { SignInDto } from "./dto/auth.signin.dto";
 import { SignUpDto } from "./dto/auth.signup.dto";
 import { LocalAuthGuard } from "./Guards/auth.guard";
-import { Request as RequestDto } from "express";
 import { JwtGuard } from "./Guards/jwt.guard";
-import { JwtService } from "@nestjs/jwt";
-import { User } from "src/user/interface/user.interface";
 import { UserExistsGuard } from "./Guards/user-exist.guard";
 
 @Controller("auth")
@@ -26,7 +25,6 @@ export class AuthController {
   ) {}
 
   @UseGuards(UserExistsGuard)
-  @UseGuards(LocalAuthGuard)
   @UsePipes(ValidationPipe)
   @Post("signup")
   signup(
