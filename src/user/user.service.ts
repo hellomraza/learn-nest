@@ -26,19 +26,15 @@ export class UserService {
     const hashedPassword = await this.encryption.hashPassword(password);
 
     const cypher = `
-      CREATE (u:User {
-        email: $email,
-        password: $password,
-        name: $name,
-        id: randomUUID()
-      }) 
+      CREATE (u:User)
+      SET u += $params, u.id = randomUUID() 
       RETURN u
   `;
     if (await this.findByEmail(email)) {
       throw new ConflictException("User already exists");
     }
     const params = { email, password: hashedPassword, name };
-    const result = await this.neo4jService.write(cypher, params);
+    const result = await this.neo4jService.write(cypher, { params });
     const newUser = result.records[0].get(0).properties;
     return newUser;
   }

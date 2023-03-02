@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Request,
-  UseGuards
+  UseGuards,
 } from "@nestjs/common";
 import { Request as RequestDto } from "express";
 import { User } from "src/user/interface/user.interface";
@@ -33,7 +33,6 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Get("user")
   getUser(@Request() req: RequestDto) {
-    return req.user;
-    // return this.authService.getUser();
+    return this.authService.getUser(req.user);
   }
 }

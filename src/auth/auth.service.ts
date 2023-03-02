@@ -45,6 +45,10 @@ export class AuthService {
     return this.createToken(user);
   }
 
+  getUser(user: any): any {
+    return user;
+  }
+
   /**
    * @param email {string}
    * @param password {string}
