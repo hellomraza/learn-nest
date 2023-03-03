@@ -38,8 +38,8 @@ export class TokenService {
   async createAccToken(user: ReqUser): Promise<string> {
     const payload = { email: user.email, sub: user.id };
     return await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>("jwt.secret.access"),
-      expiresIn: this.configService.get<number>("jwt.expiresIn.access"),
+      secret: this.configService.get<string>("jwt.access_secret"),
+      expiresIn: this.configService.get<number>("jwt.access_expiresIn"),
     });
   }
 
@@ -52,7 +52,8 @@ export class TokenService {
   async createRefToken(user: ReqUser): Promise<string> {
     const payload = { email: user.email, sub: user.id };
     return await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>("jwt.secret.refresh"),
+      secret: this.configService.get<string>("jwt.refresh_secret"),
+      expiresIn: this.configService.get<number>("jwt.refresh_expiresIn"),
     });
   }
 }

@@ -11,10 +11,8 @@ export default () => {
     jwt: {
       access_secret: process.env.JWT_ACCESS_SECRET,
       refresh_secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn: {
-        access: process.env.JWT_EXPIRES_IN_ACCESS,
-        refresh: process.env.JWT_EXPIRES_IN_REFRESH,
-      },
+      access_expiresIn: process.env.JWT_EXPIRES_IN_ACCESS,
+      refresh_expiresIn: process.env.JWT_EXPIRES_IN_REFRESH,
     },
   };
 };
