@@ -1,8 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { EncryptionService } from "src/modules/encryption/encryption.service";
-import { TokenService } from "src/modules/token/token.service";
-import { UserService } from "src/modules/user/user.service";
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { Tokens, User } from "src/utils/interface";
+import { EncryptionService } from "../encryption/encryption.service";
+import { TokenService } from "../token/token.service";
+import { UserService } from "../user/user.service";
 import { SignUpDto } from "./dto";
 @Injectable()
 export class AuthService {
@@ -54,11 +58,15 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user: User | undefined = await this.userService.findByEmail(email);
-    const isPasswordValid: boolean | undefined =
-      user &&
-      (await this.encryptionService.comparePassword(password, user.password));
 
-    if (user && isPasswordValid) return user;
-    return null;
+    if (!user) throw new NotFoundException("User not found");
+
+    const isPasswordValid: boolean | undefined =
+      await this.encryptionService.comparePassword(password, user.password);
+
+    if (!isPasswordValid)
+      throw new UnauthorizedException("Invalid credentials");
+
+    return user;
   }
 }

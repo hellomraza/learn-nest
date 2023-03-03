@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { EncryptionService } from "src/modules/encryption/encryption.service";
 import { User } from "../../utils/interface";
 import { SignUpDto } from "../auth/dto";
+import { EncryptionService } from "../encryption/encryption.service";
 import { Neo4jService } from "../neo4j/neo4j.service";
 
 @Injectable()
@@ -10,6 +10,12 @@ export class UserService {
     private readonly neo4jService: Neo4jService,
     private readonly encryption: EncryptionService,
   ) {}
+
+  /**
+   * @param email {string}
+   * @description Finds a user by email
+   * @returns user
+   */
 
   async findByEmail(email: string): Promise<User | undefined> {
     const cypher = `MATCH (u:User {email: $email}) RETURN u`;
@@ -20,6 +26,12 @@ export class UserService {
 
     return user;
   }
+
+  /**
+   * @param user {SignUpDto}
+   * @description Creates a new user
+   * @returns user
+   */
 
   async create(user: SignUpDto): Promise<User> {
     const { email, password, name } = user;

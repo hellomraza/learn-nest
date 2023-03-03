@@ -4,9 +4,7 @@ import { TokenModule } from "src/modules/token/token.module";
 import { UserModule } from "src/modules/user/user.module";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
-import { JwtATStrategy } from "./strategies/jwt.at.strategy";
-import { JwtRTStrategy } from "./strategies/jwt.rt.strategy";
-import { LocalAuthStrategy } from "./strategies/local.auth.strategies";
+import { JwtATStrategy, JwtRTStrategy, LocalAuthStrategy } from "./strategies";
 
 @Module({
   imports: [UserModule, EncryptionModule, TokenModule],
