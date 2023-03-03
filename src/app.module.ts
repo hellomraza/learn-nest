@@ -1,12 +1,13 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { AuthModule } from "./auth/auth.module";
 import configuration from "./config/configuration";
-import { EncryptionModule } from "./encryption/encryption.module";
-import { Neo4jModule } from "./neo4j/neo4j.module";
-import { Neo4jConfig } from "./neo4j/neo4j.utils/neo4j.interface";
-import { TodoModule } from "./todo/todo.module";
-import { UserModule } from "./user/user.module";
+import { AuthModule } from "./modules/auth/auth.module";
+import { EncryptionModule } from "./modules/encryption/encryption.module";
+import { Neo4jModule } from "./modules/neo4j/neo4j.module";
+import { TodoModule } from "./modules/todo/todo.module";
+import { TokenModule } from "./modules/token/token.module";
+import { UserModule } from "./modules/user/user.module";
+import { Neo4jConfig } from "./utils/interface";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
@@ -26,6 +27,7 @@ import { UserModule } from "./user/user.module";
     UserModule,
     EncryptionModule,
     TodoModule,
+    TokenModule,
   ],
 })
 export class AppModule implements NestModule {

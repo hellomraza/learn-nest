@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import neo4j, { Driver, Result, Session } from "neo4j-driver";
+import { Neo4jConfig } from "src/utils/interface";
 import { NEO4J_CONFIG, NEO4J_DRIVER } from "./neo4j.utils/neo4j.constant";
-import { Neo4jConfig } from "./neo4j.utils/neo4j.interface";
 
 @Injectable()
 export class Neo4jService {
@@ -10,13 +10,29 @@ export class Neo4jService {
     @Inject(NEO4J_DRIVER) private readonly driver: Driver,
   ) {}
 
+  /**
+   * @returns Driver
+   * @description Returns the driver instance of the Neo4jService
+   */
+
   private getDriver(): Driver {
     return this.driver;
   }
 
+  /**
+   * @returns Neo4jConfig
+   * @description Returns the config instance of the Neo4jService (NEO4J_CONFIG)
+   */
+
   private getConfig(): Neo4jConfig {
     return this.config;
   }
+
+  /**
+   * @param database - The database to connect to
+   * @returns Session
+   * @description Returns a read session for the specified database
+   */
 
   private getReadSession(database?: string): Session {
     return this.driver.session({
@@ -25,6 +41,12 @@ export class Neo4jService {
     });
   }
 
+  /**
+   * @param database - The database to connect to
+   * @returns Session
+   * @description Returns a write session for the specified database
+   */
+
   private getWriteSession(database?: string): Session {
     return this.driver.session({
       database: database || this.config.database,
@@ -32,9 +54,25 @@ export class Neo4jService {
     });
   }
 
+  /**
+   * @param cypher - The cypher query to run
+   * @param params - The parameters to pass to the cypher query
+   * @param database - The database to connect to
+   * @returns Result
+   * @description Runs a cypher query in read mode
+   */
+
   read(cypher: string, params?: any, database?: string): Result {
     return this.getReadSession(database).run(cypher, params);
   }
+
+  /**
+   * @param cypher - The cypher query to run
+   * @param params - The parameters to pass to the cypher query
+   * @param database - The database to connect to
+   * @returns Result
+   * @description Runs a cypher query in write mode
+   */
 
   write(cypher: string, params?: any, database?: string): Result {
     return this.getWriteSession(database).run(cypher, params);
