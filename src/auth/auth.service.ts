@@ -3,8 +3,9 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { EncryptionService } from "src/encryption/encryption.service";
 import { UserService } from "src/user/user.service";
-import { User } from "src/utils/interface/user.interface";
-import { SignUpDto } from "./dto/auth.signup.dto";
+import { User } from "src/utils/interface";
+import { SignUpDto } from "./dto";
+import { Tokens } from "src/utils/interface";
 
 type ReqUser = {
   email: string;
@@ -27,13 +28,14 @@ export class AuthService {
    * @returns access_token and user
    */
 
-  async signup(
-    userDto: SignUpDto,
-  ): Promise<{ user: User; access_token: string }> {
+  async signup(userDto: SignUpDto): Promise<{ user: User; tokens: Tokens }> {
     const { email, password, name } = userDto;
     const user: User = await this.userService.create({ email, password, name });
-    const { access_token } = await this.createAccToken(user);
-    return { user, access_token };
+    const [access_token, refresh_token] = await Promise.all([
+      this.createAccToken(user),
+      this.createRefToken(user),
+    ]);
+    return { user, tokens: { access_token, refresh_token } };
   }
 
   /**
@@ -43,8 +45,14 @@ export class AuthService {
    * @throws NotFoundException
    */
 
-  async signin(user: any): Promise<{ access_token: string }> {
-    return this.createAccToken(user);
+  async signin(
+    user: any,
+  ): Promise<{ access_token: string; refresh_token: string }> {
+    const [access_token, refresh_token] = await Promise.all([
+      this.createAccToken(user),
+      this.createRefToken(user),
+    ]);
+    return { access_token, refresh_token };
   }
 
   getUser(user: any): any {
@@ -76,13 +84,12 @@ export class AuthService {
    * @returns access_token
    */
 
-  async createAccToken(user: ReqUser): Promise<{ access_token: string }> {
+  async createAccToken(user: ReqUser): Promise<string> {
     const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>("jwt.secret.access"),
-      }),
-    };
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>("jwt.secret.access"),
+      expiresIn: this.configService.get<number>("jwt.expiresIn.access"),
+    });
   }
 
   /**
@@ -91,12 +98,10 @@ export class AuthService {
    * @returns refresh_token
    */
 
-  async createRefToken(user: ReqUser): Promise<{ refresh_token: string }> {
+  async createRefToken(user: ReqUser): Promise<string> {
     const payload = { email: user.email, sub: user.id };
-    return {
-      refresh_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>("jwt.secret.refresh"),
-      }),
-    };
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>("jwt.secret.refresh"),
+    });
   }
 }
