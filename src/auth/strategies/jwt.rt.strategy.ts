@@ -4,8 +4,9 @@ import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { UserService } from "src/user/user.service";
 import { User } from "src/utils/interface/user.interface";
+
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
+export class JwtRTStrategy extends PassportStrategy(Strategy, "jwt") {
   constructor(
     private readonly config: ConfigService,
     private readonly userService: UserService,
@@ -13,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>("jwt.secret"),
+      secretOrKey: config.get<string>("jwt.secret.refresh"),
     });
   }
 

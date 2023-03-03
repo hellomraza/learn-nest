@@ -9,7 +9,10 @@ export default () => {
       noe4jPort: process.env.NEO4J_PORT,
     },
     jwt: {
-      secret: process.env.JWT_SECRET,
+      secret: {
+        access: process.env.JWT_SECRET_ACCESS,
+        refresh: process.env.JWT_SECRET_REFRESH,
+      },
       expiresIn: process.env.JWT_EXPIRES_IN || 3600,
     },
   };

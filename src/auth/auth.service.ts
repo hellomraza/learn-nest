@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { EncryptionService } from "src/encryption/encryption.service";
 import { UserService } from "src/user/user.service";
@@ -17,6 +18,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly encryptionService: EncryptionService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -30,7 +32,7 @@ export class AuthService {
   ): Promise<{ user: User; access_token: string }> {
     const { email, password, name } = userDto;
     const user: User = await this.userService.create({ email, password, name });
-    const { access_token } = await this.createToken(user);
+    const { access_token } = await this.createAccToken(user);
     return { user, access_token };
   }
 
@@ -42,7 +44,7 @@ export class AuthService {
    */
 
   async signin(user: any): Promise<{ access_token: string }> {
-    return this.createToken(user);
+    return this.createAccToken(user);
   }
 
   getUser(user: any): any {
@@ -70,14 +72,31 @@ export class AuthService {
 
   /**
    * @param user
-   * @description Creates a JWT token for a user
+   * @description Creates a JWT Access token for a user
    * @returns access_token
    */
 
-  async createToken(user: ReqUser): Promise<{ access_token: string }> {
+  async createAccToken(user: ReqUser): Promise<{ access_token: string }> {
     const payload = { email: user.email, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>("jwt.secret.access"),
+      }),
+    };
+  }
+
+  /**
+   * @param user
+   * @description Creates a JWT Refresh token for a user
+   * @returns refresh_token
+   */
+
+  async createRefToken(user: ReqUser): Promise<{ refresh_token: string }> {
+    const payload = { email: user.email, sub: user.id };
+    return {
+      refresh_token: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>("jwt.secret.refresh"),
+      }),
     };
   }
 }
