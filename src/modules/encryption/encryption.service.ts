@@ -9,8 +9,8 @@ export class EncryptionService {
    * @returns hashed password
    */
 
-  async hashPassword(password: string): Promise<string> {
-    return hash(password, 10);
+  async hash(password: string): Promise<string> {
+    return await hash(password, 10);
   }
 
   /**
@@ -19,12 +19,9 @@ export class EncryptionService {
    * @returns boolean
    */
 
-  async comparePassword(
-    password: string,
-    hashedPassword: string,
-  ): Promise<boolean> {
+  async compare(password: string, hashedPassword: string): Promise<boolean> {
     try {
-      return compare(password, hashedPassword);
+      return await compare(password, hashedPassword);
     } catch (error) {
       return false;
     }

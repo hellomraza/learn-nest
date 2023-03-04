@@ -35,19 +35,50 @@ export class UserService {
 
   async create(user: SignUpDto): Promise<User> {
     const { email, password, name } = user;
-    const hashedPassword = await this.encryption.hashPassword(password);
+    const hashedPassword = await this.encryption.hash(password);
 
     const cypher = `
       CREATE (u:User)
-      SET u += $params, u.id = randomUUID() 
+      SET u += $params, u.id = randomUUID()
       RETURN u
   `;
     if (await this.findByEmail(email)) {
       throw new ConflictException("User already exists");
     }
-    const params = { email, password: hashedPassword, name };
+    const params = {
+      email,
+      password: hashedPassword,
+      name,
+    };
     const result = await this.neo4jService.write(cypher, { params });
     const newUser = result.records[0].get(0).properties;
     return newUser;
   }
+
+  /**
+   * @param id {string}
+   * @param user {User}
+   * @description Updates a user
+   * @returns user
+   * @throws NotFoundException
+   */
+
+  async update(id: string, params: User): Promise<User> {
+    const cypher = `
+      MATCH (u:User {id: $id})
+      SET u += $params
+      RETURN u
+    `;
+    const result = await this.neo4jService.write(cypher, { id, params });
+    const user = result.records[0].get(0).properties;
+    return user;
+  }
+
+  // async verifyRefreshToken(
+  //   email: string,
+  //   refreshToken: string,
+  // ): Promise<boolean> {
+
+  //   this.encryption.compare(refreshToken, user.hash_
+  // }
 }

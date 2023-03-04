@@ -5,7 +5,7 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { UserService } from "src/modules/user/user.service";
 import { User } from "src/utils/interface";
 @Injectable()
-export class JwtATStrategy extends PassportStrategy(Strategy, "jwt") {
+export class JwtATStrategy extends PassportStrategy(Strategy, "jwt-at") {
   constructor(
     config: ConfigService,
     private readonly userService: UserService,
@@ -17,7 +17,7 @@ export class JwtATStrategy extends PassportStrategy(Strategy, "jwt") {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: any): Promise<User> {
     const user: User | undefined = await this.userService.findByEmail(
       payload.email,
     );

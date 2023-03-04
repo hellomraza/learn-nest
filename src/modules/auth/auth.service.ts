@@ -1,10 +1,11 @@
 import {
   Injectable,
   NotFoundException,
-  UnauthorizedException,
+  UnauthorizedException
 } from "@nestjs/common";
 import { Tokens, User } from "src/utils/interface";
 import { EncryptionService } from "../encryption/encryption.service";
+import { Neo4jService } from "../neo4j/neo4j.service";
 import { TokenService } from "../token/token.service";
 import { UserService } from "../user/user.service";
 import { SignUpDto } from "./dto";
@@ -14,6 +15,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly encryptionService: EncryptionService,
     private readonly tokenService: TokenService,
+    private readonly neo4jService: Neo4jService,
   ) {}
 
   /**
@@ -22,12 +24,12 @@ export class AuthService {
    * @returns access_token and user
    */
 
-  async signup(userDto: SignUpDto): Promise<{ user: User; tokens: Tokens }> {
+  async signup(userDto: SignUpDto): Promise<Tokens> {
     const { email, password, name } = userDto;
     const user: User = await this.userService.create({ email, password, name });
-    const { access_token, refresh_token } =
-      await this.tokenService.createTokens(user);
-    return { user, tokens: { access_token, refresh_token } };
+    const tokens = await this.tokenService.createTokens(user);
+    await this.updateRefToken(user.id, tokens.refresh_token);
+    return tokens;
   }
 
   /**
@@ -37,11 +39,40 @@ export class AuthService {
    * @throws NotFoundException
    */
 
-  async signin(
-    user: any,
-  ): Promise<{ access_token: string; refresh_token: string }> {
-    return await this.tokenService.createTokens(user);
+  async signin(user: any): Promise<Tokens> {
+    const tokens = await this.tokenService.createTokens(user);
+    await this.updateRefToken(user.id, tokens.refresh_token);
+    return tokens;
   }
+
+  async logout(user: any): Promise<void> {
+    const cypher = `
+      MATCH (u:User {email: $email})
+      SET  u.hash_ref_token = NULL
+      RETURN u
+    `;
+
+    const params = { email: user.email };
+
+    await this.neo4jService.write(cypher, params);
+  }
+
+  async refreshTokens({ user, refreshToken }: any): Promise<string> {
+    const isRefreshTokenValid: boolean | undefined =
+      await this.encryptionService.compare(refreshToken, user.hash_ref_token);
+
+    if (!isRefreshTokenValid) throw new UnauthorizedException("Invalid token");
+
+    const { refresh_token } = await this.tokenService.createTokens(user);
+    await this.updateRefToken(user.id, refresh_token);
+    return refresh_token;
+  }
+
+  /**
+   * @param user
+   * @description Returns the user
+   * @returns user
+   */
 
   getUser(user: any): User {
     return user;
@@ -62,11 +93,24 @@ export class AuthService {
     if (!user) throw new NotFoundException("User not found");
 
     const isPasswordValid: boolean | undefined =
-      await this.encryptionService.comparePassword(password, user.password);
+      await this.encryptionService.compare(password, user.password);
 
     if (!isPasswordValid)
       throw new UnauthorizedException("Invalid credentials");
 
     return user;
+  }
+
+  async updateRefToken(id: string, refresh_token: string): Promise<void> {
+    const hashedRefToken = await this.encryptionService.hash(refresh_token);
+
+    const cypher = `
+      MATCH (u:User {id: $id})
+      SET u.hash_ref_token = $hash_ref_token
+      RETURN u
+    `;
+
+    const params = { id, hash_ref_token: hashedRefToken };
+    await this.neo4jService.write(cypher, params);
   }
 }
