@@ -9,6 +9,8 @@ import { Neo4jService } from "../neo4j/neo4j.service";
 import { TokenService } from "../token/token.service";
 import { UserService } from "../user/user.service";
 import { SignUpDto } from "./dto";
+
+interface UserWithoutPassword extends Omit<User, "password"> {}
 @Injectable()
 export class AuthService {
   constructor(
@@ -45,16 +47,16 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(user: any): Promise<void> {
+  async logout(userId: string): Promise<boolean> {
     const cypher = `
-      MATCH (u:User {email: $email})
+      MATCH (u:User {id: $userId})
       SET  u.hash_ref_token = NULL
       RETURN u
     `;
 
-    const params = { email: user.email };
+    await this.neo4jService.write(cypher, { userId });
 
-    await this.neo4jService.write(cypher, params);
+    return true;
   }
 
   async refreshTokens({ user, refreshToken }: any): Promise<string> {
@@ -74,8 +76,10 @@ export class AuthService {
    * @returns user
    */
 
-  getUser(user: any): User {
-    return user;
+  async getUser(userId: string): Promise<UserWithoutPassword> {
+    const user = (await this.userService.findById(userId)) as User;
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   /**

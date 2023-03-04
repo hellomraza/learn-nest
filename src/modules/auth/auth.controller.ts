@@ -6,13 +6,14 @@ import {
   HttpStatus,
   Post,
   Request,
-  UseGuards
+  UseGuards,
 } from "@nestjs/common";
 import { Request as RequestDto } from "express";
 import { Tokens, User } from "src/utils/interface";
 import { AuthService } from "./auth.service";
 import { SignUpDto } from "./dto";
 import { JwtAtGuard, JwtRtGuard, LocalAuthGuard } from "./guards";
+import { GetUserId } from "src/utils/decorators";
 
 @Controller("auth")
 export class AuthController {
@@ -20,8 +21,8 @@ export class AuthController {
 
   @Post("signup")
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() user: SignUpDto): Promise<Tokens> {
-    return this.authService.signup(user);
+  async signup(@Body() user: SignUpDto): Promise<Tokens> {
+    return await this.authService.signup(user);
   }
 
   @UseGuards(LocalAuthGuard)
@@ -34,8 +35,8 @@ export class AuthController {
   @UseGuards(JwtAtGuard)
   @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@Request() req: RequestDto): Promise<void> {
-    await this.authService.logout(req.user);
+  async logout(@GetUserId() userId: string): Promise<boolean> {
+    return await this.authService.logout(userId);
   }
 
   @UseGuards(JwtRtGuard)
@@ -48,7 +49,7 @@ export class AuthController {
   @UseGuards(JwtAtGuard)
   @Get("user")
   @HttpCode(HttpStatus.OK)
-  getUser(@Request() req: RequestDto): User {
-    return this.authService.getUser(req.user);
+  getUser(@GetUserId() userId: string): Promise<Omit<User, "password">> {
+    return this.authService.getUser(userId);
   }
 }

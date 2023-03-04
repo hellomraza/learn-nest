@@ -4,18 +4,16 @@ import {
   Injectable,
   NestInterceptor,
 } from "@nestjs/common";
+import { Observable, tap } from "rxjs";
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-  // write a log to the console before the request is handled by the route handler and after the response is sent
-  async intercept(context: ExecutionContext, next: CallHandler) {
-    console.log("Before...");
-
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    // get query name
+    const queryName = context.getHandler().name;
     const now = Date.now();
-    const response = next.handle();
-    const time = Date.now() - now;
-    console.log(`After... ${time}ms`);
-
-    return response;
+    return next
+      .handle()
+      .pipe(tap(() => console.log(`${queryName} ${Date.now() - now}ms`)));
   }
 }

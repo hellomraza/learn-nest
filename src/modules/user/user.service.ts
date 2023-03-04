@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "../../utils/interface";
 import { SignUpDto } from "../auth/dto";
 import { EncryptionService } from "../encryption/encryption.service";
@@ -17,12 +17,33 @@ export class UserService {
    * @returns user
    */
 
-  async findByEmail(email: string): Promise<User | undefined> {
+  async findByEmail(email: string): Promise<User> {
     const cypher = `MATCH (u:User {email: $email}) RETURN u`;
 
     const params = { email };
     const result = await this.neo4jService.read(cypher, params);
     const user = result.records[0]?.get(0)?.properties;
+
+    if (!user) throw new NotFoundException("User not found");
+
+    return user;
+  }
+
+  /**
+   * @param id {string}
+   * @description Finds a user by id
+   * @returns user
+   * @throws NotFoundException
+   */
+
+  async findById(id: string): Promise<User> {
+    const cypher = `MATCH (u:User {id: $id}) RETURN u`;
+
+    const params = { id };
+    const result = await this.neo4jService.read(cypher, params);
+    const user = result.records[0]?.get(0)?.properties;
+
+    if (!user) throw new NotFoundException("User not found");
 
     return user;
   }
