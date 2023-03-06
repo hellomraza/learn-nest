@@ -1,13 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { TokenModule } from "../../auth/src/token/token.module";
 import configuration from "./config/configuration";
-import { AuthModule } from "./modules/auth/auth.module";
-import { EncryptionModule } from "./modules/encryption/encryption.module";
 import { Neo4jModule } from "./modules/neo4j/neo4j.module";
 import { TodoModule } from "./modules/todo/todo.module";
-import { TokenModule } from "./modules/token/token.module";
 import { UserModule } from "./modules/user/user.module";
-import { Neo4jConfig } from "./utils/interface";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
@@ -22,10 +19,7 @@ import { Neo4jConfig } from "./utils/interface";
         password: configService.get("neo4j.password").toString(),
       }),
     }),
-
-    AuthModule,
     UserModule,
-    EncryptionModule,
     TodoModule,
     TokenModule,
   ],
