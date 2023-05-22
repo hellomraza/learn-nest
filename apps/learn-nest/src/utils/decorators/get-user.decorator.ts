@@ -1,6 +1,18 @@
-import { createParamDecorator } from "@nestjs/common";
+import { User } from "apps/auth/src/user/user.interface";
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 
-export const GetUser = createParamDecorator((data, req) => {
-  console.log(data);
-  // return req
-});
+export const getCurrentUserByContext = (
+  context: ExecutionContext,
+): User | undefined => {
+  if (context.getType() === "http") {
+    return context.switchToHttp().getRequest().user;
+  }
+  if (context.getType() === "rpc") {
+    return context.switchToRpc().getData().user;
+  }
+};
+
+export const CurrentUser = createParamDecorator(
+  (_data: unknown, context: ExecutionContext) =>
+    getCurrentUserByContext(context),
+);

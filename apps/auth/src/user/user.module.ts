@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { EncryptionModule } from "src/modules/encryption/encryption.module";
+import { EncryptionModule } from "apps/auth/src/encryption/encryption.module";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 

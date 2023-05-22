@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { Tokens } from "src/utils/interface";
+import { Tokens } from "./token.interface";
 
 type ReqUser = {
   email: string;

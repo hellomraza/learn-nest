@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import neo4j, { Driver, Result, Session } from "neo4j-driver";
-import { Neo4jConfig } from "src/utils/interface";
+import { Neo4jConfig } from "@app/common/utils/interface/neo4j.interface";
 import { NEO4J_CONFIG, NEO4J_DRIVER } from "./neo4j.utils/neo4j.constant";
 
 @Injectable()

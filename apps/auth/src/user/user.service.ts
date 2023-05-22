@@ -1,8 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { EncryptionService } from "../../../../auth/src/encryption/encryption.service";
-import { User } from "../../utils/interface";
-import { SignUpDto } from "../auth/dto";
-import { Neo4jService } from "../neo4j/neo4j.service";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { EncryptionService } from "../encryption/encryption.service";
+import { User } from "./user.interface";
+import { SignUpDto } from "apps/auth/src/dto";
+import { Neo4jService } from "@app/common";
 
 @Injectable()
 export class UserService {

@@ -1,3 +1,1 @@
-export * from "./neo4j.interface";
-export * from "./token.interface";
-export * from "./user.interface";
+export * from "libs/common/src/utils/interface/neo4j.interface";

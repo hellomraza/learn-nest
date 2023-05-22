@@ -2,9 +2,9 @@ import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TokenModule } from "../../auth/src/token/token.module";
 import configuration from "./config/configuration";
-import { Neo4jModule } from "./modules/neo4j/neo4j.module";
-import { TodoModule } from "./modules/todo/todo.module";
-import { UserModule } from "./modules/user/user.module";
+import { Neo4jModule } from "@app/common";
+import { UserModule } from "../../auth/src/user/user.module";
+import { Neo4jConfig } from "./utils/interface";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
@@ -20,7 +20,6 @@ import { UserModule } from "./modules/user/user.module";
       }),
     }),
     UserModule,
-    TodoModule,
     TokenModule,
   ],
 })
